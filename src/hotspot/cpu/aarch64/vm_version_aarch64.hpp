@@ -122,6 +122,11 @@ public:
   static int dcache_line_size() { return _dcache_line_size; }
 
   static bool supports_fast_class_init_checks() { return true; }
+
+#ifdef __APPLE__
+  // Is the CPU running emulated (for example macOS Rosetta running x86_64 code on M1 ARM (aarch64)
+  static bool is_cpu_emulated();
+#endif
 };
 
 #endif // CPU_AARCH64_VM_VERSION_AARCH64_HPP
