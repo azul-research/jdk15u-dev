@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -105,6 +105,58 @@ public class CompressedClassPointers {
         output.shouldHaveExitValue(0);
     }
 
+<<<<<<< HEAD
+||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
+    // Settings as in largeHeapTest() except for max heap size. We make max heap
+    // size even larger such that it cannot fit into lower 32G but not too large
+    // for compressed oops.
+    // We expect a zerobased ccs.
+    public static void largeHeapAbove32GTest() throws Exception {
+        ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
+            "-XX:+UnlockDiagnosticVMOptions",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-Xmx31g",
+            "-XX:-UseAOT", // AOT explicitly set klass shift to 3.
+            logging_option,
+            "-Xshare:off",
+            "-XX:+VerifyBeforeGC", "-version");
+        OutputAnalyzer output = new OutputAnalyzer(pb.start());
+        if (testNarrowKlassBase()) {
+            output.shouldContain("Narrow klass base: 0x0000000000000000");
+            if (!Platform.isAArch64() && !Platform.isOSX()) {
+                output.shouldContain("Narrow klass shift: 0");
+            }
+        }
+        output.shouldHaveExitValue(0);
+    }
+
+=======
+    // Settings as in largeHeapTest() except for max heap size. We make max heap
+    // size even larger such that it cannot fit into lower 32G but not too large
+    // for compressed oops.
+    // We expect a zerobased ccs.
+    public static void largeHeapAbove32GTest() throws Exception {
+        ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
+            "-XX:+UnlockDiagnosticVMOptions",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-Xmx31g",
+            "-XX:-UseAOT", // AOT explicitly set klass shift to 3.
+            logging_option,
+            "-Xshare:off",
+            "-XX:+VerifyBeforeGC", "-version");
+        OutputAnalyzer output = new OutputAnalyzer(pb.start());
+        if (testNarrowKlassBase()) {
+            if (!(Platform.isAArch64() && Platform.isOSX())) { // see JDK-8262895
+                output.shouldContain("Narrow klass base: 0x0000000000000000");
+                if (!Platform.isAArch64() && !Platform.isOSX()) {
+                    output.shouldContain("Narrow klass shift: 0");
+                }
+            }
+        }
+        output.shouldHaveExitValue(0);
+    }
+
+>>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
     // Using large paged heap, metaspace uses small pages.
     public static void largePagesForHeapTest() throws Exception {
         ProcessBuilder pb = ProcessTools.createJavaProcessBuilder(
