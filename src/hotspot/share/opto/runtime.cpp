@@ -69,6 +69,7 @@
 #include "runtime/sharedRuntime.hpp"
 #include "runtime/signature.hpp"
 #include "runtime/threadCritical.hpp"
+#include "runtime/threadWXSetters.inline.hpp"
 #include "runtime/vframe.hpp"
 #include "runtime/vframeArray.hpp"
 #include "runtime/vframe_hp.hpp"
@@ -1464,6 +1465,24 @@ address OptoRuntime::handle_exception_C(JavaThread* thread) {
 // *THIS IS NOT RECOMMENDED PROGRAMMING STYLE*
 //
 address OptoRuntime::rethrow_C(oopDesc* exception, JavaThread* thread, address ret_pc) {
+<<<<<<< HEAD
+||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
+  // The frame we rethrow the exception to might not have been processed by the GC yet.
+  // The stack watermark barrier takes care of detecting that and ensuring the frame
+  // has updated oops.
+  StackWatermarkSet::after_unwind(thread);
+
+=======
+
+  // Enable WXWrite: the function called directly by compiled code.
+  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
+
+  // The frame we rethrow the exception to might not have been processed by the GC yet.
+  // The stack watermark barrier takes care of detecting that and ensuring the frame
+  // has updated oops.
+  StackWatermarkSet::after_unwind(thread);
+
+>>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
 #ifndef PRODUCT
   SharedRuntime::_rethrow_ctr++;               // count rethrows
 #endif

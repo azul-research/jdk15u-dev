@@ -1260,7 +1260,15 @@ JRT_END
 JRT_ENTRY(void, Runtime1::patch_code(JavaThread* thread, Runtime1::StubID stub_id ))
   RegisterMap reg_map(thread, false);
 
+<<<<<<< HEAD
   NOT_PRODUCT(_patch_code_slowcase_cnt++;)
+||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
+=======
+  // Enable WXWrite: the function is called by c1 stub as a runtime function
+  // (see another implementation above).
+  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
+
+>>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
   if (TracePatching) {
     tty->print_cr("Deoptimizing because patch is needed");
   }

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,18 +23,27 @@
  *
  */
 
-#ifndef SHARE_PRIMS_WHITEBOX_INLINE_HPP
-#define SHARE_PRIMS_WHITEBOX_INLINE_HPP
+#ifndef SHARE_RUNTIME_THREADWXSETTERS_INLINE_HPP
+#define SHARE_RUNTIME_THREADWXSETTERS_INLINE_HPP
 
-#include "prims/whitebox.hpp"
-#include "runtime/interfaceSupport.inline.hpp"
+#include "runtime/thread.inline.hpp"
 
-// Entry macro to transition from JNI to VM state.
+#if defined(__APPLE__) && defined(AARCH64)
+class ThreadWXEnable  {
+  Thread* _thread;
+  WXMode _old_mode;
+public:
+  ThreadWXEnable(WXMode new_mode, Thread* thread) :
+    _thread(thread),
+    _old_mode(_thread ? _thread->enable_wx(new_mode) : WXWrite)
+  { }
+  ~ThreadWXEnable() {
+    if (_thread) {
+      _thread->enable_wx(_old_mode);
+    }
+  }
+};
+#endif // __APPLE__ && AARCH64
 
-#define WB_ENTRY(result_type, header) JNI_ENTRY(result_type, header) \
-  ClearPendingJniExcCheck _clearCheck(env); \
-  MACOS_AARCH64_ONLY(ThreadWXEnable _wx(WXWrite, thread));
+#endif // SHARE_RUNTIME_THREADWXSETTERS_INLINE_HPP
 
-#define WB_END JNI_END
-
-#endif // SHARE_PRIMS_WHITEBOX_INLINE_HPP
