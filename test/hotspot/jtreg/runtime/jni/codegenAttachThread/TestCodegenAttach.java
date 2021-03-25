@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,21 +20,23 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
- *
  */
 
-#ifndef SHARE_PRIMS_WHITEBOX_INLINE_HPP
-#define SHARE_PRIMS_WHITEBOX_INLINE_HPP
+/*
+ * @test
+ * @requires os.arch == "aarch64" & os.family == "mac"
+ * @run main/othervm/native TestCodegenAttach
+ */
 
-#include "prims/whitebox.hpp"
-#include "runtime/interfaceSupport.inline.hpp"
+public class TestCodegenAttach {
 
-// Entry macro to transition from JNI to VM state.
+    static native void testCodegenAttach();
 
-#define WB_ENTRY(result_type, header) JNI_ENTRY(result_type, header) \
-  ClearPendingJniExcCheck _clearCheck(env); \
-  MACOS_AARCH64_ONLY(ThreadWXEnable _wx(WXWrite, thread));
+    static {
+        System.loadLibrary("codegenAttach");
+    }
 
-#define WB_END JNI_END
-
-#endif // SHARE_PRIMS_WHITEBOX_INLINE_HPP
+    public static void main(String[] args) throws Throwable {
+        testCodegenAttach();
+    }
+}

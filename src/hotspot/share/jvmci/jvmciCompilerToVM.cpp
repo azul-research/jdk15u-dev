@@ -123,11 +123,24 @@ Handle JavaArgumentUnboxer::next_arg(BasicType expectedType) {
 }
 
 // Bring the JVMCI compiler thread into the VM state.
+<<<<<<< HEAD
 #define JVMCI_VM_ENTRY_MARK                   \
   ThreadInVMfromNative __tiv(thread);         \
   ResetNoHandleMark rnhm;                     \
   HandleMarkCleaner __hm(thread);             \
   Thread* THREAD = thread;                    \
+||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
+#define JVMCI_VM_ENTRY_MARK                   \
+  ThreadInVMfromNative __tiv(thread);         \
+  HandleMarkCleaner __hm(thread);             \
+  Thread* THREAD = thread;                    \
+=======
+#define JVMCI_VM_ENTRY_MARK                                       \
+  MACOS_AARCH64_ONLY(ThreadWXEnable __wx(WXWrite, thread));       \
+  ThreadInVMfromNative __tiv(thread);                             \
+  HandleMarkCleaner __hm(thread);                                 \
+  Thread* THREAD = thread;                                        \
+>>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
   debug_only(VMNativeEntryWrapper __vew;)
 
 // Native method block that transitions current thread to '_thread_in_vm'.

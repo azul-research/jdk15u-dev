@@ -1,5 +1,12 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
+ * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+=======
+ * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
+>>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -97,6 +104,7 @@
 #include "runtime/threadCritical.hpp"
 #include "runtime/threadSMR.inline.hpp"
 #include "runtime/threadStatisticalInfo.hpp"
+#include "runtime/threadWXSetters.inline.hpp"
 #include "runtime/timer.hpp"
 #include "runtime/timerTrace.hpp"
 #include "runtime/vframe.inline.hpp"
@@ -323,6 +331,8 @@ Thread::Thread() {
     // If the main thread creates other threads before the barrier set that is an error.
     assert(Thread::current_or_null() == NULL, "creating thread before barrier set");
   }
+
+  MACOS_AARCH64_ONLY(DEBUG_ONLY(_wx_init = false));
 }
 
 void Thread::initialize_thread_current() {
@@ -376,6 +386,8 @@ void Thread::call_run() {
   // Perform common initialization actions
 
   register_thread_stack_with_NMT();
+
+  MACOS_AARCH64_ONLY(this->init_wx());
 
   JFR_ONLY(Jfr::on_thread_start(this);)
 
@@ -2617,6 +2629,9 @@ void JavaThread::check_safepoint_and_suspend_for_native_trans(JavaThread *thread
 // Note only the native==>VM/Java barriers can call this function and when
 // thread state is _thread_in_native_trans.
 void JavaThread::check_special_condition_for_native_trans(JavaThread *thread) {
+  // Enable WXWrite: called directly from interpreter native wrapper.
+  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
+
   check_safepoint_and_suspend_for_native_trans(thread);
 
   if (thread->has_async_exception()) {
@@ -3768,6 +3783,8 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   // Initialize the os module
   os::init();
 
+  MACOS_AARCH64_ONLY(os::current_thread_enable_wx(WXWrite));
+
   // Record VM creation timing statistics
   TraceVmCreationTime create_vm_timer;
   create_vm_timer.start();
@@ -3868,6 +3885,7 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   main_thread->record_stack_base_and_size();
   main_thread->register_thread_stack_with_NMT();
   main_thread->set_active_handles(JNIHandleBlock::allocate_block());
+  MACOS_AARCH64_ONLY(main_thread->init_wx());
 
   if (!main_thread->set_as_starting_thread()) {
     vm_shutdown_during_initialization(
