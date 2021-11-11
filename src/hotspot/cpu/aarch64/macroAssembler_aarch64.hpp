@@ -1247,13 +1247,8 @@ public:
                      int elem_size);
 
   void fill_words(Register base, Register cnt, Register value);
-<<<<<<< HEAD
-  void zero_words(Register base, u_int64_t cnt);
-  address zero_words(Register ptr, Register cnt);
-=======
   void zero_words(Register base, uint64_t cnt);
-  void zero_words(Register ptr, Register cnt);
->>>>>>> 6a91c73dda1 (8248403: AArch64: Remove uses of kernel integer types)
+  address zero_words(Register ptr, Register cnt);
   void zero_dcache_blocks(Register base, Register cnt);
 
   static const int zero_words_block_size;
