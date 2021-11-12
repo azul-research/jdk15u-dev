@@ -41,6 +41,13 @@
 #include "runtime/frame.inline.hpp"
 #include "runtime/init.hpp"
 #include "runtime/os.hpp"
+<<<<<<< HEAD
+||||||| parent of b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
+#include "runtime/osThread.hpp"
+=======
+#include "runtime/osThread.hpp"
+#include "runtime/safefetch.hpp"
+>>>>>>> b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
 #include "runtime/safepointMechanism.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/threadSMR.hpp"

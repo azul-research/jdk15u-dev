@@ -40,9 +40,15 @@
 #include "runtime/objectMonitor.inline.hpp"
 #include "runtime/orderAccess.hpp"
 #include "runtime/osThread.hpp"
+<<<<<<< HEAD
+||||||| parent of b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
+#include "runtime/perfData.hpp"
+=======
+#include "runtime/perfData.hpp"
+#include "runtime/safefetch.hpp"
+>>>>>>> b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
 #include "runtime/safepointMechanism.inline.hpp"
 #include "runtime/sharedRuntime.hpp"
-#include "runtime/stubRoutines.hpp"
 #include "runtime/thread.inline.hpp"
 #include "services/threadService.hpp"
 #include "utilities/dtrace.hpp"
