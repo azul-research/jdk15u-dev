@@ -1,5 +1,11 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+||||||| parent of b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
+ * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+=======
+ * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
+>>>>>>> b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,8 +42,8 @@
 #include "runtime/mutexLocker.hpp"
 #include "runtime/orderAccess.hpp"
 #include "runtime/os.hpp"
+#include "runtime/safefetch.hpp"
 #include "runtime/safepoint.hpp"
-#include "runtime/stubRoutines.hpp"
 #include "runtime/thread.hpp"
 #include "utilities/align.hpp"
 #include "utilities/count_trailing_zeros.hpp"

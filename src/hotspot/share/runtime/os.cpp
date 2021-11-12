@@ -53,8 +53,14 @@
 #include "runtime/javaCalls.hpp"
 #include "runtime/mutexLocker.hpp"
 #include "runtime/os.inline.hpp"
+<<<<<<< HEAD
+||||||| parent of b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
+#include "runtime/osThread.hpp"
+=======
+#include "runtime/osThread.hpp"
+#include "runtime/safefetch.hpp"
+>>>>>>> b955f85e03b (8261075: Create stubRoutines.inline.hpp with SafeFetch implementation)
 #include "runtime/sharedRuntime.hpp"
-#include "runtime/stubRoutines.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/threadSMR.hpp"
 #include "runtime/vm_version.hpp"
