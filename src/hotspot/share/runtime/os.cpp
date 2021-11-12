@@ -53,15 +53,7 @@
 #include "runtime/javaCalls.hpp"
 #include "runtime/mutexLocker.hpp"
 #include "runtime/os.inline.hpp"
-<<<<<<< HEAD
-#include "runtime/safefetch.hpp"
-||||||| parent of 0bc45625b09 (8263068: Rename safefetch.hpp to safefetch.inline.hpp)
-#include "runtime/osThread.hpp"
-#include "runtime/safefetch.hpp"
-=======
-#include "runtime/osThread.hpp"
 #include "runtime/safefetch.inline.hpp"
->>>>>>> 0bc45625b09 (8263068: Rename safefetch.hpp to safefetch.inline.hpp)
 #include "runtime/sharedRuntime.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/threadSMR.hpp"

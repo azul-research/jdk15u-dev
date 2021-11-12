@@ -40,15 +40,7 @@
 #include "runtime/objectMonitor.inline.hpp"
 #include "runtime/orderAccess.hpp"
 #include "runtime/osThread.hpp"
-<<<<<<< HEAD
-#include "runtime/safefetch.hpp"
-||||||| parent of 0bc45625b09 (8263068: Rename safefetch.hpp to safefetch.inline.hpp)
-#include "runtime/perfData.hpp"
-#include "runtime/safefetch.hpp"
-=======
-#include "runtime/perfData.hpp"
 #include "runtime/safefetch.inline.hpp"
->>>>>>> 0bc45625b09 (8263068: Rename safefetch.hpp to safefetch.inline.hpp)
 #include "runtime/safepointMechanism.inline.hpp"
 #include "runtime/sharedRuntime.hpp"
 #include "runtime/thread.inline.hpp"
