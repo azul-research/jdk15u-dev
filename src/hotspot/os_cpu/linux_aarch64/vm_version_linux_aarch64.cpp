@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2006, 2019, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2014, 2019, Red Hat Inc. All rights reserved.
+ * Copyright (c) 2006, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2020, Red Hat Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -63,6 +63,7 @@ void VM_Version::get_os_cpu_info() {
 
   uint64_t auxv = getauxval(AT_HWCAP);
 
+<<<<<<< HEAD
   static_assert(CPU_FP      == HWCAP_FP);
   static_assert(CPU_ASIMD   == HWCAP_ASIMD);
   static_assert(CPU_EVTSTRM == HWCAP_EVTSTRM);
@@ -73,6 +74,21 @@ void VM_Version::get_os_cpu_info() {
   static_assert(CPU_CRC32   == HWCAP_CRC32);
   static_assert(CPU_LSE     == HWCAP_ATOMICS);
   static_assert(CPU_DCPOP   == HWCAP_DCPOP);
+=======
+  static_assert(CPU_FP      == HWCAP_FP,      "Flag CPU_FP must follow Linux HWCAP");
+  static_assert(CPU_ASIMD   == HWCAP_ASIMD,   "Flag CPU_ASIMD must follow Linux HWCAP");
+  static_assert(CPU_EVTSTRM == HWCAP_EVTSTRM, "Flag CPU_EVTSTRM must follow Linux HWCAP");
+  static_assert(CPU_AES     == HWCAP_AES,     "Flag CPU_AES must follow Linux HWCAP");
+  static_assert(CPU_PMULL   == HWCAP_PMULL,   "Flag CPU_PMULL must follow Linux HWCAP");
+  static_assert(CPU_SHA1    == HWCAP_SHA1,    "Flag CPU_SHA1 must follow Linux HWCAP");
+  static_assert(CPU_SHA2    == HWCAP_SHA2,    "Flag CPU_SHA2 must follow Linux HWCAP");
+  static_assert(CPU_CRC32   == HWCAP_CRC32,   "Flag CPU_CRC32 must follow Linux HWCAP");
+  static_assert(CPU_LSE     == HWCAP_ATOMICS, "Flag CPU_LSE must follow Linux HWCAP");
+  static_assert(CPU_DCPOP   == HWCAP_DCPOP,   "Flag CPU_DCPOP must follow Linux HWCAP");
+  static_assert(CPU_SHA3    == HWCAP_SHA3,    "Flag CPU_SHA3 must follow Linux HWCAP");
+  static_assert(CPU_SHA512  == HWCAP_SHA512,  "Flag CPU_SHA512 must follow Linux HWCAP");
+  static_assert(CPU_SVE     == HWCAP_SVE,     "Flag CPU_SVE must follow Linux HWCAP");
+>>>>>>> da48003abd2... 8255975: Fix AArch64 OpenJDK build failure with gcc-5
   _features = auxv & (
       HWCAP_FP      |
       HWCAP_ASIMD   |
