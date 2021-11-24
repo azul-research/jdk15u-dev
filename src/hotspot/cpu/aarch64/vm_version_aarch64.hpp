@@ -40,30 +40,13 @@ protected:
   static int _variant;
   static int _revision;
   static int _stepping;
-<<<<<<< HEAD
-  static bool _dcpop;
-  struct PsrInfo {
-    uint32_t dczid_el0;
-    uint32_t ctr_el0;
-  };
-  static PsrInfo _psr_info;
-  static void get_processor_features();
-=======
 
   static int _zva_length;
   static int _dcache_line_size;
   static int _icache_line_size;
-  static int _initial_sve_vector_length;
 
   // Read additional info using OS-specific interfaces
   static void get_os_cpu_info();
-
-  // Sets the SVE length and returns a new actual value or negative on error.
-  // If the len is larger than the system largest supported SVE vector length,
-  // the function sets the largest supported value.
-  static int set_and_get_current_sve_vector_lenght(int len);
-  static int get_current_sve_vector_length();
->>>>>>> ec9bee68660... 8253015: Aarch64: Move linux code out from generic CPU feature detection
 
 public:
   // Initialization
@@ -114,10 +97,7 @@ public:
     CPU_CRC32        = (1<<7),
     CPU_LSE          = (1<<8),
     CPU_DCPOP        = (1<<16),
-    CPU_SHA512       = (1<<21),
-    CPU_SVE          = (1<<22),
     // flags above must follow Linux HWCAP
-    CPU_SVE2         = (1<<28),
     CPU_STXR_PREFETCH= (1<<29),
     CPU_A53MAC       = (1<<30),
   };
@@ -127,20 +107,8 @@ public:
   static int cpu_model2()                     { return _model2; }
   static int cpu_variant()                    { return _variant; }
   static int cpu_revision()                   { return _revision; }
-<<<<<<< HEAD
-  static bool supports_dcpop()                { return _dcpop; }
-  static ByteSize dczid_el0_offset() { return byte_offset_of(PsrInfo, dczid_el0); }
-  static ByteSize ctr_el0_offset()   { return byte_offset_of(PsrInfo, ctr_el0); }
-  static bool is_zva_enabled() {
-    // Check the DZP bit (bit 4) of dczid_el0 is zero
-    // and block size (bit 0~3) is not zero.
-    return ((_psr_info.dczid_el0 & 0x10) == 0 &&
-            (_psr_info.dczid_el0 & 0xf) != 0);
-  }
-=======
 
   static bool is_zva_enabled() { return 0 <= _zva_length; }
->>>>>>> ec9bee68660... 8253015: Aarch64: Move linux code out from generic CPU feature detection
   static int zva_length() {
     assert(is_zva_enabled(), "ZVA not available");
     return _zva_length;
@@ -148,7 +116,6 @@ public:
 
   static int icache_line_size() { return _icache_line_size; }
   static int dcache_line_size() { return _dcache_line_size; }
-  static int get_initial_sve_vector_length()  { return _initial_sve_vector_length; };
 
   static bool supports_fast_class_init_checks() { return true; }
 };
