@@ -555,7 +555,7 @@ public class AArch64HotSpotLIRGenerator extends AArch64LIRGenerator implements H
 
         boolean isDcZvaProhibited = true;
         int zvaLength = 0;
-        if (GraalHotSpotVMConfig.JDK >= 16) {
+        if (GraalHotSpotVMConfig.JDK >= 16 || (GraalHotSpotVMConfig.JDK == 15 && GraalHotSpotVMConfig.JDK_UPDATE >= 6)) {
             zvaLength = config.zvaLength;
             isDcZvaProhibited = 0 == config.zvaLength;
         } else {
