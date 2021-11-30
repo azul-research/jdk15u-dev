@@ -434,34 +434,49 @@ endif
 
 ###########################################################################
 
-#### Begin harfbuzz configuration
 
-HARFBUZZ_CFLAGS := -DHAVE_OT -DHAVE_FALLBACK -DHAVE_UCDN -DHAVE_ROUND
+ifeq ($(USE_EXTERNAL_HARFBUZZ), true)
+   LIBFONTMANAGER_EXTRA_SRC =
+   BUILD_LIBFONTMANAGER_FONTLIB += $(HARFBUZZ_LIBS)
+else
+   LIBFONTMANAGER_EXTRA_SRC = libharfbuzz
+   # Modern HarfBuzz requires c++11.
+   HARFBUZZ_CXXFLAGS := -std=c++11
 
-ifeq ($(call isTargetOs, windows), false)
-  HARFBUZZ_CFLAGS += -DGETPAGESIZE -DHAVE_MPROTECT -DHAVE_PTHREAD \
-                      -DHAVE_SYSCONF -DHAVE_SYS_MMAN_H -DHAVE_UNISTD_H \
-                      -DHB_NO_PRAGMA_GCC_DIAGNOSTIC
-endif
-ifeq ($(call isTargetOs, linux macosx), true)
-  HARFBUZZ_CFLAGS += -DHAVE_INTEL_ATOMIC_PRIMITIVES
-endif
-ifeq ($(call isTargetOs, macosx), true)
-  HARFBUZZ_CFLAGS += -DHAVE_CORETEXT
-endif
-ifeq ($(call isTargetOs, macosx), false)
-  LIBFONTMANAGER_EXCLUDE_FILES += harfbuzz/hb-coretext.cc
-endif
-# hb-ft.cc is not presently needed, and requires freetype 2.4.2 or later.
-LIBFONTMANAGER_EXCLUDE_FILES += harfbuzz/hb-ft.cc
+   ifeq ($(call isTargetOs, windows), false)
+     HARFBUZZ_CFLAGS += -DGETPAGESIZE -DHAVE_MPROTECT -DHAVE_PTHREAD \
+                        -DHAVE_SYSCONF -DHAVE_SYS_MMAN_H -DHAVE_UNISTD_H \
+                        -DHB_NO_PRAGMA_GCC_DIAGNOSTIC
+   endif
+   ifeq ($(call isTargetOs, linux macosx), true)
+     HARFBUZZ_CFLAGS += -DHAVE_INTEL_ATOMIC_PRIMITIVES
+   endif
+   ifeq ($(call isTargetOs, macosx), true)
+     HARFBUZZ_CFLAGS += -DHAVE_CORETEXT
+   endif
 
-LIBFONTMANAGER_CFLAGS += $(HARFBUZZ_CFLAGS)
+   ifeq ($(call isTargetOs, macosx), false)
+     LIBFONTMANAGER_EXCLUDE_FILES += libharfbuzz/hb-coretext.cc
+   endif
+   # hb-ft.cc is not presently needed, and requires freetype 2.4.2 or later.
+   LIBFONTMANAGER_EXCLUDE_FILES += libharfbuzz/hb-ft.cc
 
-#### End harfbuzz configuration
+   HARFBUZZ_DISABLED_WARNINGS_gcc := type-limits missing-field-initializers strict-aliasing
+   HARFBUZZ_DISABLED_WARNINGS_CXX_gcc := reorder delete-non-virtual-dtor strict-overflow \
+        maybe-uninitialized class-memaccess
+   HARFBUZZ_DISABLED_WARNINGS_clang := unused-value incompatible-pointer-types \
+        tautological-constant-out-of-range-compare int-to-pointer-cast \
+        undef missing-field-initializers range-loop-analysis
+   HARFBUZZ_DISABLED_WARNINGS_microsoft := 4267 4244 4090 4146 4334 4819 4101 4068 4805 4138
+
+   LIBFONTMANAGER_CFLAGS += $(HARFBUZZ_CFLAGS)
+
+endif
+
 
 LIBFONTMANAGER_EXTRA_HEADER_DIRS := \
-    libfontmanager/harfbuzz \
-    libfontmanager/harfbuzz/hb-ucdn \
+    libharfbuzz \
+    libharfbuzz/hb-ucdn \
     common/awt \
     common/font \
     libawt/java2d \
@@ -470,9 +485,9 @@ LIBFONTMANAGER_EXTRA_HEADER_DIRS := \
     #
 
 LIBFONTMANAGER_CFLAGS += $(LIBFREETYPE_CFLAGS)
-BUILD_LIBFONTMANAGER_FONTLIB += $(LIBFREETYPE_LIBS)
+BUILD_LIBFONTMANAGER_FONTLIB +=  $(LIBFREETYPE_LIBS)
 
-LIBFONTMANAGER_OPTIMIZATION := HIGH
+LIBFONTMANAGER_OPTIMIZATION := HIGHEST
 
 ifeq ($(call isTargetOs, windows), true)
   LIBFONTMANAGER_EXCLUDE_FILES += X11FontScaler.c \
@@ -506,20 +521,16 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBFONTMANAGER, \
         AccelGlyphCache.c, \
     TOOLCHAIN := TOOLCHAIN_LINK_CXX, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBFONTMANAGER_CFLAGS), \
-    CXXFLAGS := $(CXXFLAGS_JDKLIB) $(LIBFONTMANAGER_CFLAGS), \
+    CXXFLAGS := $(CXXFLAGS_JDKLIB) $(LIBFONTMANAGER_CFLAGS) $(HARFBUZZ_CXXFLAGS), \
     OPTIMIZATION := $(LIBFONTMANAGER_OPTIMIZATION), \
     CFLAGS_windows = -DCC_NOEX, \
     EXTRA_HEADER_DIRS := $(LIBFONTMANAGER_EXTRA_HEADER_DIRS), \
+    EXTRA_SRC := $(LIBFONTMANAGER_EXTRA_SRC), \
     WARNINGS_AS_ERRORS_xlc := false, \
-    DISABLED_WARNINGS_gcc := sign-compare int-to-pointer-cast \
-        type-limits missing-field-initializers implicit-fallthrough \
-        strict-aliasing undef unused-function, \
-    DISABLED_WARNINGS_CXX_gcc := reorder delete-non-virtual-dtor strict-overflow \
-        maybe-uninitialized class-memaccess, \
-    DISABLED_WARNINGS_clang := unused-value incompatible-pointer-types \
-        tautological-constant-out-of-range-compare int-to-pointer-cast \
-        sign-compare undef missing-field-initializers, \
-    DISABLED_WARNINGS_microsoft := 4267 4244 4018 4090 4996 4146 4334 4819 4101 4068 4805 4138, \
+    DISABLED_WARNINGS_gcc := sign-compare unused-function int-to-pointer-cast $(HARFBUZZ_DISABLED_WARNINGS_gcc), \
+    DISABLED_WARNINGS_CXX_gcc := $(HARFBUZZ_DISABLED_WARNINGS_CXX_gcc), \
+    DISABLED_WARNINGS_clang := sign-compare $(HARFBUZZ_DISABLED_WARNINGS_clang), \
+    DISABLED_WARNINGS_microsoft := 4018 4996 $(HARFBUZZ_DISABLED_WARNINGS_microsoft), \
     LDFLAGS := $(subst -Xlinker -z -Xlinker defs,, \
         $(subst -Wl$(COMMA)-z$(COMMA)defs,,$(LDFLAGS_JDKLIB))) $(LDFLAGS_CXX_JDK) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
@@ -527,8 +538,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBFONTMANAGER, \
     LDFLAGS_aix := -Wl$(COMMA)-berok, \
     LIBS := $(BUILD_LIBFONTMANAGER_FONTLIB), \
     LIBS_unix := -lawt -ljava -ljvm $(LIBM) $(LIBCXX), \
-    LIBS_macosx := -lawt_lwawt -framework CoreText -framework CoreFoundation \
-        -framework CoreGraphics, \
+    LIBS_macosx := -lawt_lwawt -framework CoreText -framework CoreFoundation -framework CoreGraphics, \
     LIBS_windows := $(WIN_JAVA_LIB) advapi32.lib user32.lib gdi32.lib \
         $(WIN_AWT_LIB), \
 ))
