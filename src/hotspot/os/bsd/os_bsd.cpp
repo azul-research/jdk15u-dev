@@ -220,6 +220,8 @@ static char cpu_arch[] = "i386";
 static char cpu_arch[] = "amd64";
 #elif defined(ARM)
 static char cpu_arch[] = "arm";
+#elif defined(AARCH64)
+static char cpu_arch[] = "aarch64";
 #elif defined(PPC32)
 static char cpu_arch[] = "ppc";
 #else
@@ -2831,20 +2833,17 @@ void os::Bsd::install_signal_handlers() {
     set_signal_handler(SIGXFSZ, true);
 
 #if defined(__APPLE__)
-    // In Mac OS X 10.4, CrashReporter will write a crash log for all 'fatal' signals, including
-    // signals caught and handled by the JVM. To work around this, we reset the mach task
-    // signal handler that's placed on our process by CrashReporter. This disables
-    // CrashReporter-based reporting.
-    //
-    // This work-around is not necessary for 10.5+, as CrashReporter no longer intercedes
-    // on caught fatal signals.
-    //
-    // Additionally, gdb installs both standard BSD signal handlers, and mach exception
-    // handlers. By replacing the existing task exception handler, we disable gdb's mach
+    // lldb (gdb) installs both standard BSD signal handlers, and mach exception
+    // handlers. By replacing the existing task exception handler, we disable lldb's mach
     // exception handling, while leaving the standard BSD signal handlers functional.
+    //
+    // EXC_MASK_BAD_ACCESS needed by all architectures for NULL ptr checking
+    // EXC_MASK_ARITHMETIC needed by all architectures for div by 0 checking
+    // EXC_MASK_BAD_INSTRUCTION needed by aarch64 to initiate deoptimization
     kern_return_t kr;
     kr = task_set_exception_ports(mach_task_self(),
-                                  EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC,
+                                  EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC
+                                    AARCH64_ONLY(| EXC_MASK_BAD_INSTRUCTION),
                                   MACH_PORT_NULL,
                                   EXCEPTION_STATE_IDENTITY,
                                   MACHINE_THREAD_STATE);
@@ -3206,7 +3205,7 @@ int os::active_processor_count() {
   return _processor_count;
 }
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(__x86_64__)
 uint os::processor_id() {
   // Get the initial APIC id and return the associated processor id. The initial APIC
   // id is limited to 8-bits, which means we can have at most 256 unique APIC ids. If

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2014, Red Hat Inc. All rights reserved.
+ * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,16 +28,6 @@
 #define OS_CPU_BSD_AARCH64_THREAD_BSD_AARCH64_HPP
 
  private:
-#ifdef ASSERT
-  // spill stack holds N callee-save registers at each Java call and
-  // grows downwards towards limit
-  // we need limit to check we have space for a spill and base so we
-  // can identify all live spill frames at GC (eventually)
-  address          _spill_stack;
-  address          _spill_stack_base;
-  address          _spill_stack_limit;
-#endif // ASSERT
-
   void pd_initialize() {
     _anchor.clear();
   }
@@ -65,11 +56,14 @@
     bool isInJava);
 
   bool pd_get_top_frame_for_profiling(frame* fr_addr, void* ucontext, bool isInJava);
-private:
-  bool pd_get_top_frame(frame* fr_addr, void* ucontext, bool isInJava);
-public:
 
-  static Thread *aarch64_get_thread_helper();
+ private:
+  bool pd_get_top_frame(frame* fr_addr, void* ucontext, bool isInJava);
+ public:
+
+  static Thread *aarch64_get_thread_helper() {
+    return Thread::current();
+  }
 
   // These routines are only used on cpu architectures that
   // have separate register stacks (Itanium).

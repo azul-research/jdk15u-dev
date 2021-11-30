@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 1999, 2021, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2014, Red Hat Inc. All rights reserved.
+ * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -21,23 +20,23 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
- *
  */
 
-#ifndef OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
-#define OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
+/*
+ * @test
+ * @requires os.arch == "aarch64" & os.family == "mac"
+ * @run main/othervm/native TestCodegenAttach
+ */
 
-  static void setup_fpu();
+public class TestCodegenAttach {
 
-  static bool is_allocatable(size_t bytes);
+    static native void testCodegenAttach();
 
-  // Used to register dynamic code cache area with the OS
-  // Note: Currently only used in 64 bit Windows implementations
-  static bool register_code_area(char *low, char *high) { return true; }
+    static {
+        System.loadLibrary("codegenAttach");
+    }
 
-  // Atomically copy 64 bits of data
-  static void atomic_copy64(const volatile void *src, volatile void *dst) {
-    *(jlong *) dst = *(const jlong *) src;
-  }
-
-#endif // OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
+    public static void main(String[] args) throws Throwable {
+        testCodegenAttach();
+    }
+}

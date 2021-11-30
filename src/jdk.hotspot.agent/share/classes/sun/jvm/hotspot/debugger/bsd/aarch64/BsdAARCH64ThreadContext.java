@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 1999, 2021, Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2014, Red Hat Inc. All rights reserved.
+ * Copyright (c) 2003, 2021, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -24,20 +23,25 @@
  *
  */
 
-#ifndef OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
-#define OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
+package sun.jvm.hotspot.debugger.bsd.aarch64;
 
-  static void setup_fpu();
+import sun.jvm.hotspot.debugger.*;
+import sun.jvm.hotspot.debugger.aarch64.*;
+import sun.jvm.hotspot.debugger.bsd.*;
 
-  static bool is_allocatable(size_t bytes);
+public class BsdAARCH64ThreadContext extends AARCH64ThreadContext {
+  private BsdDebugger debugger;
 
-  // Used to register dynamic code cache area with the OS
-  // Note: Currently only used in 64 bit Windows implementations
-  static bool register_code_area(char *low, char *high) { return true; }
-
-  // Atomically copy 64 bits of data
-  static void atomic_copy64(const volatile void *src, volatile void *dst) {
-    *(jlong *) dst = *(const jlong *) src;
+  public BsdAARCH64ThreadContext(BsdDebugger debugger) {
+    super();
+    this.debugger = debugger;
   }
 
-#endif // OS_CPU_BSD_AARCH64_OS_BSD_AARCH64_HPP
+  public void setRegisterAsAddress(int index, Address value) {
+    setRegister(index, debugger.getAddressValue(value));
+  }
+
+  public Address getRegisterAsAddress(int index) {
+    return debugger.newAddress(getRegister(index));
+  }
+}

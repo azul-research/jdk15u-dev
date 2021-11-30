@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 1999, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2021, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2014, Red Hat Inc. All rights reserved.
+ * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,7 +27,17 @@
 #ifndef OS_CPU_BSD_AARCH64_BYTES_BSD_AARCH64_INLINE_HPP
 #define OS_CPU_BSD_AARCH64_BYTES_BSD_AARCH64_INLINE_HPP
 
-#include <byteswap.h>
+#ifdef __APPLE__
+#include <libkern/OSByteOrder.h>
+#endif
+
+#if defined(__APPLE__)
+#  define bswap_16(x) OSSwapInt16(x)
+#  define bswap_32(x) OSSwapInt32(x)
+#  define bswap_64(x) OSSwapInt64(x)
+#else
+#  error "Unimplemented"
+#endif
 
 // Efficient swapping of data bytes from Java byte
 // ordering to native byte ordering and vice versa.

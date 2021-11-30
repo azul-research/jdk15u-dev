@@ -70,6 +70,9 @@ public:
   // The CPU implementer codes can be found in
   // ARM Architecture Reference Manual ARMv8, for ARMv8-A architecture profile
   // https://developer.arm.com/docs/ddi0487/latest
+  // Arm can assign codes that are not published in the manual.
+  // Apple's code is defined in
+  // https://github.com/apple/darwin-xnu/blob/33eb983/osfmk/arm/cpuid.h#L62
   enum Family {
     CPU_AMPERE    = 0xC0,
     CPU_ARM       = 'A',
@@ -84,6 +87,7 @@ public:
     CPU_QUALCOM   = 'Q',
     CPU_MARVELL   = 'V',
     CPU_INTEL     = 'i',
+    CPU_APPLE     = 'a',
   };
 
   enum Feature_Flag {
@@ -118,6 +122,11 @@ public:
   static int dcache_line_size() { return _dcache_line_size; }
 
   static bool supports_fast_class_init_checks() { return true; }
+
+#ifdef __APPLE__
+  // Is the CPU running emulated (for example macOS Rosetta running x86_64 code on M1 ARM (aarch64)
+  static bool is_cpu_emulated();
+#endif
 };
 
 #endif // CPU_AARCH64_VM_VERSION_AARCH64_HPP
