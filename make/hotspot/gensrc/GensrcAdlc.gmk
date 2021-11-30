@@ -88,27 +88,9 @@ ifeq ($(call check-jvm-feature, compiler2), true)
     ADLCFLAGS += -DAIX=1
   else ifeq ($(call isTargetOs, macosx), true)
     ADLCFLAGS += -D_ALLBSD_SOURCE=1 -D_GNU_SOURCE=1
-<<<<<<< HEAD
-||||||| parent of dbc9e4b50cd (8253795: Implementation of JEP 391: macOS/AArch64 Port)
-  else ifeq ($(call isTargetOs, windows), true)
-    ifeq ($(call isTargetCpuBits, 64), true)
-      ADLCFLAGS += -D_WIN64=1
-    endif
     ifeq ($(HOTSPOT_TARGET_CPU_ARCH), aarch64)
       ADLCFLAGS += -DR18_RESERVED
     endif
-=======
-    ifeq ($(HOTSPOT_TARGET_CPU_ARCH), aarch64)
-      ADLCFLAGS += -DR18_RESERVED
-    endif
-  else ifeq ($(call isTargetOs, windows), true)
-    ifeq ($(call isTargetCpuBits, 64), true)
-      ADLCFLAGS += -D_WIN64=1
-    endif
-    ifeq ($(HOTSPOT_TARGET_CPU_ARCH), aarch64)
-      ADLCFLAGS += -DR18_RESERVED
-    endif
->>>>>>> dbc9e4b50cd (8253795: Implementation of JEP 391: macOS/AArch64 Port)
   endif
 
   ifeq ($(call isTargetOs, windows), false)
