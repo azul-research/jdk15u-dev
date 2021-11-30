@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011, 2020, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2011, 2021, Oracle and/or its affiliates. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -241,7 +241,7 @@ AC_DEFUN_ONCE([JVM_FEATURES_CHECK_AOT],
         test "x$OPENJDK_TARGET_CPU" = "xaarch64"; then
       AC_MSG_RESULT([yes])
     else
-      AC_MSG_RESULT([no, $OPENJDK_TARGET_CPU])
+      AC_MSG_RESULT([no, $OPENJDK_TARGET_OS-$OPENJDK_TARGET_CPU])
       AVAILABLE=false
     fi
 
@@ -263,11 +263,13 @@ AC_DEFUN_ONCE([JVM_FEATURES_CHECK_CDS],
 [
   JVM_FEATURES_CHECK_AVAILABILITY(cds, [
     AC_MSG_CHECKING([if platform is supported by CDS])
-    if test "x$OPENJDK_TARGET_OS" != xaix; then
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no, $OPENJDK_TARGET_OS])
+    if test "x$OPENJDK_TARGET_OS" = xaix || \
+        ( test "x$OPENJDK_TARGET_OS" = "xmacosx" && \
+        test "x$OPENJDK_TARGET_CPU" = "xaarch64" ) ; then
+      AC_MSG_RESULT([no, $OPENJDK_TARGET_OS-$OPENJDK_TARGET_CPU])
       AVAILABLE=false
+    else
+      AC_MSG_RESULT([yes])
     fi
   ])
 ])
