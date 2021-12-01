@@ -171,19 +171,9 @@ ExtendedPC os::fetch_frame_from_context(const void* ucVoid,
   const ucontext_t* uc = (const ucontext_t*)ucVoid;
 
   if (uc != NULL) {
-<<<<<<< HEAD
-    epc = ExtendedPC(os::Linux::ucontext_get_pc(uc));
-    if (ret_sp) *ret_sp = os::Linux::ucontext_get_sp(uc);
-    if (ret_fp) *ret_fp = os::Linux::ucontext_get_fp(uc);
-||||||| parent of 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
-    epc = os::Linux::ucontext_get_pc(uc);
-    if (ret_sp) *ret_sp = os::Linux::ucontext_get_sp(uc);
-    if (ret_fp) *ret_fp = os::Linux::ucontext_get_fp(uc);
-=======
-    epc = os::Bsd::ucontext_get_pc(uc);
+    epc = ExtendedPC(os::Bsd::ucontext_get_pc(uc));
     if (ret_sp) *ret_sp = os::Bsd::ucontext_get_sp(uc);
     if (ret_fp) *ret_fp = os::Bsd::ucontext_get_fp(uc);
->>>>>>> 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
   } else {
     // construct empty ExtendedPC for return value checking
     epc = ExtendedPC(NULL);

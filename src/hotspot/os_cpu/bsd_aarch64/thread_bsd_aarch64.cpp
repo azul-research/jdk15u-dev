@@ -79,27 +79,11 @@ bool JavaThread::pd_get_top_frame(frame* fr_addr, void* ucontext, bool isInJava)
       return false;
     }
 
-<<<<<<< HEAD
     frame ret_frame(ret_sp, ret_fp, addr.pc());
     if (!ret_frame.safe_for_sender(jt)) {
-||||||| parent of 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
-    frame ret_frame(ret_sp, ret_fp, addr);
-    if (!ret_frame.safe_for_sender(this)) {
-=======
-    frame ret_frame(ret_sp, ret_fp, addr);
-    if (!ret_frame.safe_for_sender(jt)) {
->>>>>>> 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
 #ifdef COMPILER2
-<<<<<<< HEAD
       frame ret_frame2(ret_sp, NULL, addr.pc());
       if (!ret_frame2.safe_for_sender(jt)) {
-||||||| parent of 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
-      frame ret_frame2(ret_sp, NULL, addr);
-      if (!ret_frame2.safe_for_sender(this)) {
-=======
-      frame ret_frame2(ret_sp, NULL, addr);
-      if (!ret_frame2.safe_for_sender(jt)) {
->>>>>>> 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
         // nothing else to try if the frame isn't good
         return false;
       }
