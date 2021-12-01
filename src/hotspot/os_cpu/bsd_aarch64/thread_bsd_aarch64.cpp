@@ -30,6 +30,7 @@
 
 frame JavaThread::pd_last_frame() {
   assert(has_last_Java_frame(), "must have last_Java_sp() when suspended");
+  vmassert(_anchor.last_Java_pc() != NULL, "not walkable");
   return frame(_anchor.last_Java_sp(), _anchor.last_Java_fp(), _anchor.last_Java_pc());
 }
 
@@ -78,11 +79,27 @@ bool JavaThread::pd_get_top_frame(frame* fr_addr, void* ucontext, bool isInJava)
       return false;
     }
 
+<<<<<<< HEAD
     frame ret_frame(ret_sp, ret_fp, addr.pc());
     if (!ret_frame.safe_for_sender(jt)) {
+||||||| parent of 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
+    frame ret_frame(ret_sp, ret_fp, addr);
+    if (!ret_frame.safe_for_sender(this)) {
+=======
+    frame ret_frame(ret_sp, ret_fp, addr);
+    if (!ret_frame.safe_for_sender(jt)) {
+>>>>>>> 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
 #ifdef COMPILER2
+<<<<<<< HEAD
       frame ret_frame2(ret_sp, NULL, addr.pc());
       if (!ret_frame2.safe_for_sender(jt)) {
+||||||| parent of 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
+      frame ret_frame2(ret_sp, NULL, addr);
+      if (!ret_frame2.safe_for_sender(this)) {
+=======
+      frame ret_frame2(ret_sp, NULL, addr);
+      if (!ret_frame2.safe_for_sender(jt)) {
+>>>>>>> 58a63b60cbe (JDK-8253819: Add missing parts from bsd_x86)
         // nothing else to try if the frame isn't good
         return false;
       }
