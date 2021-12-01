@@ -80,3 +80,11 @@ void VM_Version::get_os_cpu_info() {
   _model = family;
   _cpu = CPU_APPLE;
 }
+
+#ifdef __APPLE__
+
+bool VM_Version::is_cpu_emulated() {
+  return false;
+}
+
+#endif
