@@ -34,10 +34,10 @@ class ICache : public AbstractICache {
  public:
   static void initialize();
   static void invalidate_word(address addr) {
-    __builtin___clear_cache((char *)addr, (char *)(addr + 4));
+    __clear_cache((char *)addr, (char *)(addr + 4));
   }
   static void invalidate_range(address start, int nbytes) {
-    __builtin___clear_cache((char *)start, (char *)(start + nbytes));
+    __clear_cache((char *)start, (char *)(start + nbytes));
   }
 };
 
