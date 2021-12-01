@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef OS_CPU_LINUX_AARCH64_ORDERACCESS_LINUX_AARCH64_HPP
-#define OS_CPU_LINUX_AARCH64_ORDERACCESS_LINUX_AARCH64_HPP
+#ifndef OS_CPU_BSD_AARCH64_ORDERACCESS_BSD_AARCH64_HPP
+#define OS_CPU_BSD_AARCH64_ORDERACCESS_BSD_AARCH64_HPP
 
 // Included in orderAccess.hpp header file.
 
@@ -55,4 +55,4 @@ inline void OrderAccess::fence() {
 
 inline void OrderAccess::cross_modify_fence() { }
 
-#endif // OS_CPU_LINUX_AARCH64_ORDERACCESS_LINUX_AARCH64_HPP
+#endif // OS_CPU_BSD_AARCH64_ORDERACCESS_BSD_AARCH64_HPP
