@@ -152,9 +152,9 @@ intptr_t* os::Bsd::ucontext_get_fp(const ucontext_t * uc) {
 // For Forte Analyzer AsyncGetCallTrace profiling support - thread
 // is currently interrupted by SIGPROF.
 // os::Solaris::fetch_frame_from_ucontext() tries to skip nested signal
-// frames. Currently we don't do that on Linux, so it's the same as
+// frames. Currently we don't do that on Bsd, so it's the same as
 // os::fetch_frame_from_context().
-ExtendedPC os::Linux::fetch_frame_from_ucontext(Thread* thread,
+ExtendedPC os::Bsd::fetch_frame_from_ucontext(Thread* thread,
   const ucontext_t* uc, intptr_t** ret_sp, intptr_t** ret_fp) {
 
   assert(thread != NULL, "just checking");
@@ -426,10 +426,14 @@ JVM_handle_bsd_signal(int sig,
           tty->print_cr("trap: %s: (SIGILL)", msg);
         }
 
+PRAGMA_DIAG_PUSH
+PRAGMA_DISABLE_GCC_WARNING("-Wformat-nonliteral")
+PRAGMA_DISABLE_GCC_WARNING("-Wuninitialized")
         va_list detail_args;
         VMError::report_and_die(INTERNAL_ERROR, msg, detail_msg, detail_args, thread,
                                 pc, info, ucVoid, NULL, 0, 0);
         va_end(detail_args);
+PRAGMA_DIAG_POP
       }
       else
 
