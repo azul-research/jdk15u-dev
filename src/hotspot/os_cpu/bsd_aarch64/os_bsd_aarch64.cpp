@@ -40,6 +40,7 @@
 #include "prims/jniFastGetField.hpp"
 #include "prims/jvm_misc.hpp"
 #include "runtime/arguments.hpp"
+#include "runtime/extendedPC.hpp"
 #include "runtime/frame.inline.hpp"
 #include "runtime/interfaceSupport.inline.hpp"
 #include "runtime/java.hpp"
@@ -51,7 +52,6 @@
 #include "runtime/stubRoutines.hpp"
 #include "runtime/thread.inline.hpp"
 #include "runtime/timer.hpp"
-#include "signals_posix.hpp"
 #include "utilities/align.hpp"
 #include "utilities/events.hpp"
 #include "utilities/vmError.hpp"
@@ -112,7 +112,6 @@
 #define context_sp   uc_mcontext->DU3_PREFIX(ss,sp)
 #define context_pc   uc_mcontext->DU3_PREFIX(ss,pc)
 #define context_cpsr uc_mcontext->DU3_PREFIX(ss,cpsr)
-#define context_esr  uc_mcontext->DU3_PREFIX(es,esr)
 
 address os::current_stack_pointer() {
 #if defined(__clang__) || defined(__llvm__)
@@ -151,18 +150,34 @@ intptr_t* os::Bsd::ucontext_get_fp(const ucontext_t * uc) {
   return (intptr_t*)uc->context_fp;
 }
 
-address os::fetch_frame_from_context(const void* ucVoid,
+// For Forte Analyzer AsyncGetCallTrace profiling support - thread
+// is currently interrupted by SIGPROF.
+// os::Solaris::fetch_frame_from_ucontext() tries to skip nested signal
+// frames. Currently we don't do that on Bsd, so it's the same as
+// os::fetch_frame_from_context().
+ExtendedPC os::Bsd::fetch_frame_from_ucontext(Thread* thread,
+  const ucontext_t* uc, intptr_t** ret_sp, intptr_t** ret_fp) {
+
+  assert(thread != NULL, "just checking");
+  assert(ret_sp != NULL, "just checking");
+  assert(ret_fp != NULL, "just checking");
+
+  return os::fetch_frame_from_context(uc, ret_sp, ret_fp);
+}
+
+ExtendedPC os::fetch_frame_from_context(const void* ucVoid,
                     intptr_t** ret_sp, intptr_t** ret_fp) {
 
-  address epc;
+  ExtendedPC  epc;
   const ucontext_t* uc = (const ucontext_t*)ucVoid;
 
   if (uc != NULL) {
-    epc = os::Bsd::ucontext_get_pc(uc);
+    epc = ExtendedPC(os::Bsd::ucontext_get_pc(uc));
     if (ret_sp) *ret_sp = os::Bsd::ucontext_get_sp(uc);
     if (ret_fp) *ret_fp = os::Bsd::ucontext_get_fp(uc);
   } else {
-    epc = NULL;
+    // construct empty ExtendedPC for return value checking
+    epc = ExtendedPC(NULL);
     if (ret_sp) *ret_sp = (intptr_t *)NULL;
     if (ret_fp) *ret_fp = (intptr_t *)NULL;
   }
@@ -173,8 +188,8 @@ address os::fetch_frame_from_context(const void* ucVoid,
 frame os::fetch_frame_from_context(const void* ucVoid) {
   intptr_t* sp;
   intptr_t* fp;
-  address epc = fetch_frame_from_context(ucVoid, &sp, &fp);
-  return frame(sp, fp, epc);
+  ExtendedPC epc = fetch_frame_from_context(ucVoid, &sp, &fp);
+  return frame(sp, fp, epc.pc());
 }
 
 bool os::Bsd::get_frame_at_stack_banging_point(JavaThread* thread, ucontext_t* uc, frame* fr) {
@@ -263,7 +278,7 @@ JVM_handle_bsd_signal(int sig,
 
   if (sig == SIGPIPE || sig == SIGXFSZ) {
     // allow chained handler to go first
-    if (PosixSignals::chained_handler(sig, info, ucVoid)) {
+    if (os::Bsd::chained_handler(sig, info, ucVoid)) {
       return true;
     } else {
       // Ignoring SIGPIPE/SIGXFSZ - see bugs 4229104 or 6499219
@@ -281,7 +296,7 @@ JVM_handle_bsd_signal(int sig,
 
   JavaThread* thread = NULL;
   VMThread* vmthread = NULL;
-  if (PosixSignals::are_signal_handlers_installed()) {
+  if (os::Bsd::signal_handlers_are_installed) {
     if (t != NULL ){
       if(t->is_Java_thread()) {
         thread = (JavaThread*)t;
@@ -326,22 +341,21 @@ JVM_handle_bsd_signal(int sig,
       // check if fault address is within thread stack
       if (thread->is_in_full_stack(addr)) {
         // stack overflow
-        StackOverflow* overflow_state = thread->stack_overflow_state();
-        if (overflow_state->in_stack_yellow_reserved_zone(addr)) {
+        if (thread->in_stack_yellow_reserved_zone(addr)) {
           if (thread->thread_state() == _thread_in_Java) {
-            if (overflow_state->in_stack_reserved_zone(addr)) {
+            if (thread->in_stack_reserved_zone(addr)) {
               frame fr;
               if (os::Bsd::get_frame_at_stack_banging_point(thread, uc, &fr)) {
                 assert(fr.is_java_frame(), "Must be a Java frame");
                 frame activation =
                   SharedRuntime::look_for_reserved_stack_annotated_method(thread, fr);
                 if (activation.sp() != NULL) {
-                  overflow_state->disable_stack_reserved_zone();
+                  thread->disable_stack_reserved_zone();
                   if (activation.is_interpreted_frame()) {
-                    overflow_state->set_reserved_stack_activation((address)(
+                    thread->set_reserved_stack_activation((address)(
                       activation.fp() + frame::interpreter_frame_initial_sp_offset));
                   } else {
-                    overflow_state->set_reserved_stack_activation((address)activation.unextended_sp());
+                    thread->set_reserved_stack_activation((address)activation.unextended_sp());
                   }
                   return 1;
                 }
@@ -349,17 +363,17 @@ JVM_handle_bsd_signal(int sig,
             }
             // Throw a stack overflow exception.  Guard pages will be reenabled
             // while unwinding the stack.
-            overflow_state->disable_stack_yellow_reserved_zone();
+            thread->disable_stack_yellow_reserved_zone();
             stub = SharedRuntime::continuation_for_implicit_exception(thread, pc, SharedRuntime::STACK_OVERFLOW);
           } else {
             // Thread was in the vm or native code.  Return and try to finish.
-            overflow_state->disable_stack_yellow_reserved_zone();
+            thread->disable_stack_yellow_reserved_zone();
             return 1;
           }
-        } else if (overflow_state->in_stack_red_zone(addr)) {
+        } else if (thread->in_stack_red_zone(addr)) {
           // Fatal red zone violation.  Disable the guard pages and fall through
           // to handle_unexpected_exception way down below.
-          overflow_state->disable_stack_red_zone();
+          thread->disable_stack_red_zone();
           tty->print_raw_cr("An irrecoverable stack overflow has occurred.");
         }
       }
@@ -467,7 +481,7 @@ PRAGMA_DIAG_POP
   }
 
   // signal-chaining
-  if (PosixSignals::chained_handler(sig, info, ucVoid)) {
+  if (os::Bsd::chained_handler(sig, info, ucVoid)) {
      return true;
   }
 
