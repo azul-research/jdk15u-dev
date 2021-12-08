@@ -66,23 +66,23 @@ bool JavaThread::pd_get_top_frame(frame* fr_addr, void* ucontext, bool isInJava)
 
     intptr_t* ret_fp;
     intptr_t* ret_sp;
-    address addr = os::fetch_frame_from_context(uc, &ret_sp, &ret_fp);
-    if (addr == NULL || ret_sp == NULL ) {
+    ExtendedPC addr = os::Bsd::fetch_frame_from_ucontext(this, uc, &ret_sp, &ret_fp);
+    if (addr.pc() == NULL || ret_sp == NULL ) {
       // ucontext wasn't useful
       return false;
     }
 
-    if (MetaspaceShared::is_in_trampoline_frame(addr)) {
+    if (MetaspaceShared::is_in_trampoline_frame(addr.pc())) {
       // In the middle of a trampoline call. Bail out for safety.
       // This happens rarely so shouldn't affect profiling.
       return false;
     }
 
-    frame ret_frame(ret_sp, ret_fp, addr);
+    frame ret_frame(ret_sp, ret_fp, addr.pc());
     if (!ret_frame.safe_for_sender(jt)) {
 #if COMPILER2_OR_JVMCI
       // C2 and JVMCI use ebp as a general register see if NULL fp helps
-      frame ret_frame2(ret_sp, NULL, addr);
+      frame ret_frame2(ret_sp, NULL, addr.pc());
       if (!ret_frame2.safe_for_sender(jt)) {
         // nothing else to try if the frame isn't good
         return false;
