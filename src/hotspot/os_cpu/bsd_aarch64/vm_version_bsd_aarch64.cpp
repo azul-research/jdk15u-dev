@@ -31,16 +31,6 @@
 
 #include <sys/sysctl.h>
 
-int VM_Version::get_current_sve_vector_length() {
-  ShouldNotCallThis();
-  return -1;
-}
-
-int VM_Version::set_and_get_current_sve_vector_lenght(int length) {
-  ShouldNotCallThis();
-  return -1;
-}
-
 static bool cpu_has(const char* optional) {
   uint32_t val;
   size_t len = sizeof(val);
