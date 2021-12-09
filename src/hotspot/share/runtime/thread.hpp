@@ -1,12 +1,6 @@
 /*
-<<<<<<< HEAD
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
-||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
-=======
  * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2021, Azul Systems, Inc. All rights reserved.
->>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -852,11 +846,8 @@ protected:
   // Not for general synchronization use.
   static void SpinAcquire(volatile int * Lock, const char * Name);
   static void SpinRelease(volatile int * Lock);
-<<<<<<< HEAD
   static void muxAcquire(volatile intptr_t * Lock, const char * Name);
   static void muxRelease(volatile intptr_t * Lock);
-||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
-=======
 
 #if defined(__APPLE__) && defined(AARCH64)
  private:
@@ -866,7 +857,6 @@ protected:
   void init_wx();
   WXMode enable_wx(WXMode new_state);
 #endif // __APPLE__ && AARCH64
->>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
 };
 
 // Inline implementation of Thread::current()

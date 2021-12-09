@@ -1008,15 +1008,9 @@ JRT_END
 
 
 nmethod* InterpreterRuntime::frequency_counter_overflow(JavaThread* thread, address branch_bcp) {
-<<<<<<< HEAD
-||||||| parent of 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
-  // frequency_counter_overflow_inner can throw async exception.
-=======
   // Enable WXWrite: the function is called directly by interpreter.
   MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, thread));
 
-  // frequency_counter_overflow_inner can throw async exception.
->>>>>>> 5e4dae92d17 (8253795: Implementation of JEP 391: macOS/AArch64 Port)
   nmethod* nm = frequency_counter_overflow_inner(thread, branch_bcp);
   assert(branch_bcp != NULL || nm == NULL, "always returns null for non OSR requests");
   if (branch_bcp != NULL && nm != NULL) {
