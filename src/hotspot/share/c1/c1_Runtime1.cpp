@@ -1261,6 +1261,7 @@ JRT_ENTRY(void, Runtime1::patch_code(JavaThread* thread, Runtime1::StubID stub_i
   RegisterMap reg_map(thread, false);
 
   NOT_PRODUCT(_patch_code_slowcase_cnt++;)
+
   if (TracePatching) {
     tty->print_cr("Deoptimizing because patch is needed");
   }
