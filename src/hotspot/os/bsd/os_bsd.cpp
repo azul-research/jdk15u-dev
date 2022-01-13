@@ -2843,7 +2843,7 @@ void os::Bsd::install_signal_handlers() {
     kern_return_t kr;
     kr = task_set_exception_ports(mach_task_self(),
                                   EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC
-                                  AARCH64_ONLY(| EXC_MASK_BAD_INSTRUCTION),
+                                    AARCH64_ONLY(| EXC_MASK_BAD_INSTRUCTION),
                                   MACH_PORT_NULL,
                                   EXCEPTION_STATE_IDENTITY,
                                   MACHINE_THREAD_STATE);
